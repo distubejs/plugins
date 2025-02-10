@@ -66,6 +66,7 @@ export class DeezerPlugin extends InfoExtractorPlugin {
                 playFromSource: false,
                 id: song.id.toString(),
                 url: song.link,
+                duration: song.duration,
                 name: song.title,
                 uploader: {
                   name: song.artist.name,
