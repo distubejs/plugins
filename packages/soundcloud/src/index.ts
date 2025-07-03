@@ -121,19 +121,49 @@ export class SoundCloudPlugin extends ExtractorPlugin {
     return related.filter(t => t.title).map(t => new SoundCloudSong(this, t));
   }
 
-  async getStreamURL<T>(song: SoundCloudSong<T>) {
-    if (!song.url) {
-      throw new DisTubeError("SOUNDCLOUD_PLUGIN_INVALID_SONG", "Cannot get stream url from invalid song.");
-    }
-    const stream = await this.soundcloud.util.streamLink(song.url);
-    if (!stream) {
-      throw new DisTubeError(
-        "SOUNDCLOUD_PLUGIN_RATE_LIMITED",
-        "Reached SoundCloud rate limits\nSee more: https://developers.soundcloud.com/docs/api/rate-limits#play-requests",
-      );
-    }
-    return stream;
+async getStreamURL(song) {
+  if (!song.url) {
+    throw new import_distube.DisTubeError("SOUNDCLOUD_PLUGIN_INVALID_SONG", "Cannot get stream url from invalid song.");
   }
+  
+  let stream = await this.soundcloud.util.streamLink(song.url).catch(() => null);
+
+  if (stream) return stream;
+
+  const track = await this.soundcloud.resolve.get(song.url, true).catch(() => null);
+
+  if (!track || !track.media || !track.media.transcodings?.length) {
+    throw new import_distube.DisTubeError("SOUNDCLOUD_PLUGIN_STREAM_ERROR", "Invalid or restricted SoundCloud track.");
+  }
+
+
+  const progressive = track.media.transcodings.find(t => t.format.protocol === "progressive");
+  const transcoding = progressive || track.media.transcodings[0];
+
+  if (!transcoding?.url) {
+    throw new import_distube.DisTubeError("SOUNDCLOUD_PLUGIN_STREAM_ERROR", "No valid stream URL found.");
+  }
+
+  const clientId = await this.soundcloud.api.getClientId().catch(() => null);
+  if (!clientId) {
+    throw new import_distube.DisTubeError("SOUNDCLOUD_PLUGIN_NO_CLIENT_ID", "Missing client ID");
+  }
+
+  const res = await fetch(`${transcoding.url}?client_id=${clientId}`);
+  if (!res.ok) {
+    throw new import_distube.DisTubeError(
+      "SOUNDCLOUD_PLUGIN_RATE_LIMITED",
+      `Failed to fetch stream URL. HTTP ${res.status}`
+    );
+  }
+
+  const json = await res.json();
+  if (!json?.url) {
+    throw new import_distube.DisTubeError("SOUNDCLOUD_PLUGIN_STREAM_ERROR", "Stream URL missing in response.");
+  }
+
+  return json.url; 
+}
 
   async searchSong<T>(query: string, options: ResolveOptions<T>) {
     const songs = await this.search(query, SearchType.Track, 1, options);
