@@ -165,6 +165,12 @@ async getStreamURL(song) {
   return json.url; 
 }
 
+  async searchSong<T>(query: string, options: ResolveOptions<T>) {
+    const songs = await this.search(query, SearchType.Track, 1, options);
+    return songs[0];
+  }
+}
+
 class SoundCloudSong<T> extends Song<T> {
   constructor(plugin: SoundCloudPlugin, info: SoundcloudTrack, options: ResolveOptions<T> = {}) {
     super(
