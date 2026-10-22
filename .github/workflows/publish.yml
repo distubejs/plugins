@@ -1,42 +1,110 @@
-name: Publish distube
+name: Publish
+# Tag the release commit `chore(Release): @distube/<plugin>@<version>` with `@distube/<plugin>@<version>`. CI checks
+# that commit, builds that package, publishes it with provenance and creates the GitHub release.
 on:
-  release:
-    types: [published]
+  push:
+    tags: ["@distube/*@*"]
 jobs:
   publish:
-    name: Build & Publish
+    name: Verify, pack and publish
     runs-on: ubuntu-latest
+    outputs:
+      name: ${{ steps.tag.outputs.name }}
+      directory: ${{ steps.tag.outputs.directory }}
     permissions:
+      contents: read
       id-token: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: latest
+        uses: pnpm/action-setup@v4
 
+      # pnpm runs on Node.js, and npm publish signs provenance: bun publish rejects --provenance (oven-sh/bun#15601)
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: "pnpm"
           registry-url: "https://registry.npmjs.org"
+
+      - name: Resolve package from tag
+        id: tag
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if [[ ! "$TAG" =~ ^@distube/([a-z-]+)@([0-9A-Za-z.+-]+)$ ]]; then
+            echo "Tag must be @distube/<plugin>@<version>: $TAG" >&2
+            exit 1
+          fi
+          directory="packages/${BASH_REMATCH[1]}"
+          [[ -f "$directory/package.json" ]] || { echo "No package at $directory" >&2; exit 1; }
+          manifest="$(node -p 'const m = require(process.argv[1]); `${m.name}@${m.version}`' "./$directory/package.json")"
+          if [[ "$manifest" != "$TAG" ]]; then
+            echo "Tag $TAG does not match $manifest" >&2
+            exit 1
+          fi
+          echo "name=@distube/${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+          echo "directory=$directory" >> "$GITHUB_OUTPUT"
+
+      - name: Check the tag is on its release commit
+        env:
+          TAG: ${{ github.ref_name }}
+          DIRECTORY: ${{ steps.tag.outputs.directory }}
+        run: |
+          fail() { echo "Tag $TAG is not on its release commit: $1" >&2; exit 1; }
+          [[ "$(git log -1 --format=%s)" == "chore(Release): $TAG" ]] || fail "the subject is not 'chore(Release): $TAG'"
+          [[ "$(git rev-list --parents -n 1 HEAD | wc -w)" == 2 ]] || fail "it does not have exactly one parent"
+          [[ "$(git diff --name-only HEAD^ HEAD)" == "$DIRECTORY/package.json" ]] ||
+            fail "it changes files other than $DIRECTORY/package.json"
+          git show "HEAD^:$DIRECTORY/package.json" > "$RUNNER_TEMP/before.json"
+          node -e '
+            const [before, after] = process.argv.slice(1).map((path) => require(path));
+            const rest = (manifest) => JSON.stringify({ ...manifest, version: undefined });
+            process.exit(rest(before) === rest(after) && before.version !== after.version ? 0 : 1);
+          ' "$RUNNER_TEMP/before.json" "$PWD/$DIRECTORY/package.json" || fail "$DIRECTORY/package.json changes more than its version"
 
       - name: Install dependencies
         run: pnpm install --ignore-scripts --frozen-lockfile
 
-      - name: Parse tag name
-        id: parsed
-        run: |
-          echo "package=$(echo ${{ github.event.release.tag_name }} | sed 's/.*@distube\/\(.*\)@\(.*\)/\1/g')" >> $GITHUB_OUTPUT
-          echo "version=$(echo ${{ github.event.release.tag_name }} | sed 's/.*@distube\/.*@\(.*\)/\1/g')" >> $GITHUB_OUTPUT
+      - name: Verify
+        env:
+          NAME: ${{ steps.tag.outputs.name }}
+        run: pnpm --filter "$NAME" run lint && pnpm --filter "$NAME" run type && pnpm --filter "$NAME" run build
+
+      - name: Pack
+        working-directory: ${{ steps.tag.outputs.directory }}
+        run: npm pack --pack-destination "$RUNNER_TEMP"
 
       - name: Publish
-        run: |
-          pnpm publish --filter "@distube/${{ steps.parsed.outputs.package }}" --access public --no-git-checks
-          pnpm deprecate @distube/${{ steps.parsed.outputs.package }}@"< ${{ steps.parsed.outputs.version }}" "This version is deprecated, please upgrade to the latest version."
+        working-directory: ${{ steps.tag.outputs.directory }}
+        run: npm publish "$RUNNER_TEMP"/*.tgz --provenance --access public
+
+  release:
+    name: Create the GitHub release
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Release with notes since the package's previous tag
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
+          TAG: ${{ github.ref_name }}
+          NAME: ${{ needs.publish.outputs.name }}
+          DIRECTORY: ${{ needs.publish.outputs.directory }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          previous="$(git describe --tags --abbrev=0 --match "$NAME@*" HEAD^ 2>/dev/null || true)"
+          git log --no-merges --format='- %s (%h)' "${previous:+$previous..}HEAD" -- "$DIRECTORY" |
+            grep -v '^- chore(Release):' > "$RUNNER_TEMP/notes.md" || true
+          args=(--verify-tag --title "$TAG" --latest=false --notes-file "$RUNNER_TEMP/notes.md")
+          if [[ "$TAG" == *-* ]]; then args+=(--prerelease); fi
+          gh release create "$TAG" "${args[@]}"
