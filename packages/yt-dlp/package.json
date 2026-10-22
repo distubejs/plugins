@@ -4,7 +4,7 @@
   "author": "Skick (https://github.com/skick1234)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/distubejs/extractor-plugins.git"
+    "url": "git+https://github.com/distubejs/plugins.git"
   },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -34,7 +34,7 @@
     "typescript": "^5.6.3"
   },
   "bugs": {
-    "url": "https://github.com/distubejs/extractor-plugins/issues"
+    "url": "https://github.com/distubejs/plugins/issues"
   },
   "description": "A DisTube playable extractor plugin using yt-dlp.",
   "directories": {
@@ -45,7 +45,7 @@
     "script"
   ],
   "funding": "https://github.com/skick1234/DisTube?sponsor",
-  "homepage": "https://github.com/distubejs/extractor-plugins/tree/main/packages/yt-dlp#readme",
+  "homepage": "https://github.com/distubejs/plugins/tree/main/packages/yt-dlp#readme",
   "keywords": [
     "distube",
     "plugin",

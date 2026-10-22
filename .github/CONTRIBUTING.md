@@ -10,4 +10,4 @@ If you wish to contribute to DisTube, feel free to fork the repository and submi
 2. Run `pnpm ci`
 3. Code your idea
 4. Run `pnpm run test` to make sure it works
-5. [Submit a pull request](https://github.com/distubejs/extractor-plugins/compare) (Make sure you follow the [conventional commit format](https://www.conventionalcommits.org/en/v1.0.0/))
+5. [Submit a pull request](https://github.com/distubejs/plugins/compare) (Make sure you follow the [conventional commit format](https://www.conventionalcommits.org/en/v1.0.0/))

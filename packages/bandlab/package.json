@@ -7,7 +7,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/distubejs/extractor-plugins.git"
+    "url": "git+https://github.com/distubejs/plugins.git"
   },
   "main": "./dist/index.js",
   "devDependencies": {
@@ -23,7 +23,7 @@
   },
   "exports": "./dist/index.js",
   "bugs": {
-    "url": "https://github.com/distubejs/extractor-plugins/issues"
+    "url": "https://github.com/distubejs/plugins/issues"
   },
   "description": "A DisTube playable extractor plugin for supporting Bandlab.",
   "directories": {
@@ -34,7 +34,7 @@
     "script"
   ],
   "funding": "https://github.com/skick1234/DisTube?sponsor",
-  "homepage": "https://github.com/distubejs/extractor-plugins/tree/main/packages/bandlab#readme",
+  "homepage": "https://github.com/distubejs/plugins/tree/main/packages/bandlab#readme",
   "keywords": [
     "distube",
     "plugin",

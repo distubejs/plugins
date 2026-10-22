@@ -4,7 +4,7 @@
   "author": "Skick (https://github.com/skick1234)",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/distubejs/extractor-plugins.git"
+    "url": "git+https://github.com/distubejs/plugins.git"
   },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -33,7 +33,7 @@
     "typescript": "^5.6.3"
   },
   "bugs": {
-    "url": "https://github.com/distubejs/extractor-plugins/issues"
+    "url": "https://github.com/distubejs/plugins/issues"
   },
   "description": "A DisTube playable extractor plugin for supporting local files.",
   "directories": {
@@ -43,7 +43,7 @@
     "dist"
   ],
   "funding": "https://github.com/skick1234/DisTube?sponsor",
-  "homepage": "hhttps://github.com/distubejs/extractor-plugins/tree/main/packages/file#readme",
+  "homepage": "hhttps://github.com/distubejs/plugins/tree/main/packages/file#readme",
   "keywords": [
     "distube",
     "plugin",
