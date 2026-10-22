@@ -22,9 +22,13 @@ A DisTube extractor plugin for supporting YouTube.
 ## Feature
 
 - Scraping YouTube data without using API key
-- Support YouTube video playlists
+- Support YouTube video playlists and channel uploads
 - Search on YouTube
 - Play video directly from YouTube
+
+## Requirements
+
+Node.js `^22.22.2 || ^24.15.0 || >=26.0.0`, the range [`@distube/ytdl-core`](https://github.com/distubejs/ytdl-core) 5 supports.
 
 ## Usage
 
@@ -66,7 +70,7 @@ console.log(results);
 #### YouTubePlugin([YouTubePluginOptions])
 
 - `YoutubePluginOptions.cookies`: (Optional) YouTube cookies. See: [How to get YouTube cookies](https://github.com/skick1234/DisTube/wiki/YouTube-Cookies)
-- `YoutubePluginOptions.ytdlOptions`: (Optional) ytdl-core options.
+- `YoutubePluginOptions.ytdlOptions`: (Optional) [`@distube/ytdl-core` options](https://distube.js.org/ytdl-core/guides/getting-started/), such as `lang`, `clients` or `getPoToken`. `cookies` replaces its `cookie`.
 
 #### YouTubePlugin#search(query, [options]): Promise<Song[]|SearchResultPlaylist[]>
 
@@ -81,7 +85,7 @@ console.log(results);
 - `id`: Playlist ID
 - `name`: Playlist name
 - `url`: Playlist URL
-- `length`: Number of videos in the playlist
+- `length`: Number of videos in the playlist, `0` when YouTube does not show it
 - `uploader`: Playlist owner
 - `uploader.name`: Playlist owner name
 - `uploader.url`: Playlist owner URL

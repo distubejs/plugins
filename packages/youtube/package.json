@@ -72,8 +72,9 @@
   },
   "typings": "./dist/index.d.ts",
   "dependencies": {
-    "@distube/ytdl-core": "^4.15.0",
-    "@distube/ytpl": "^1.2.1",
-    "@distube/ytsr": "^2.0.4"
+    "@distube/ytdl-core": "^5.0.1"
+  },
+  "engines": {
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
   }
 }
