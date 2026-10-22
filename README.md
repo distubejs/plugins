@@ -1,3 +1,3 @@
-# @distube/extractor-plugins
+# @distube/plugins
 
 Official DisTube extractor plugins.

@@ -1,5 +1,5 @@
 {
-  "name": "@distube/extractor-plugins",
+  "name": "@distube/plugins",
   "description": "Official extractor plugins for DisTube",
   "private": true,
   "scripts": {
