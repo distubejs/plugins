@@ -1,6 +1,18 @@
 {
   "name": "@distube/bandlab",
   "version": "1.0.0",
+  "description": "A DisTube playable extractor plugin for supporting Bandlab.",
+  "keywords": [
+    "discord",
+    "distube",
+    "music",
+    "plugin"
+  ],
+  "homepage": "https://github.com/distubejs/plugins/tree/main/packages/bandlab#readme",
+  "bugs": {
+    "url": "https://github.com/distubejs/plugins/issues"
+  },
+  "license": "MIT",
   "author": "Lakhindar Pal (https://github.com/LakhindarPal)",
   "contributors": [
     "Skick (https://github.com/skick1234)"
@@ -9,23 +21,7 @@
     "type": "git",
     "url": "git+https://github.com/distubejs/plugins.git"
   },
-  "main": "./dist/index.js",
-  "devDependencies": {
-    "@types/node": "^22.8.1",
-    "discord.js": "^14.16.3",
-    "distube": "^5.0.2",
-    "eslint": "^8.57.0",
-    "eslint-config-distube": "^1.7.1",
-    "prettier": "^3.3.3",
-    "tslib": "^2.8.0",
-    "tsup": "^8.3.5",
-    "typescript": "^5.6.3"
-  },
-  "exports": "./dist/index.js",
-  "bugs": {
-    "url": "https://github.com/distubejs/plugins/issues"
-  },
-  "description": "A DisTube playable extractor plugin for supporting Bandlab.",
+  "funding": "https://github.com/skick1234/DisTube?sponsor",
   "directories": {
     "lib": "src"
   },
@@ -33,36 +29,26 @@
     "dist",
     "script"
   ],
-  "funding": "https://github.com/skick1234/DisTube?sponsor",
-  "homepage": "https://github.com/distubejs/plugins/tree/main/packages/bandlab#readme",
-  "keywords": [
-    "distube",
-    "plugin",
-    "discord",
-    "music"
-  ],
-  "license": "MIT",
-  "nano-staged": {
-    "*.ts": [
-      "prettier --write",
-      "eslint"
-    ],
-    "*.{json,yml,yaml}": [
-      "prettier --write"
-    ]
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "build": "tsup",
+    "type": "tsrs --noEmit",
+    "prepack": "bun run build"
+  },
+  "dependencies": {
+    "undici": "^6.20.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.8.1",
+    "discord.js": "^14.16.3",
+    "distube": "^5.0.2",
+    "tslib": "^2.8.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3"
   },
   "peerDependencies": {
     "distube": "5"
-  },
-  "scripts": {
-    "format": "prettier --write \"**/*.{js,ts,json,yml,yaml,md}\"",
-    "lint": "eslint .",
-    "build": "tsup",
-    "type": "tsc --noEmit",
-    "prepack": "pnpm run build"
-  },
-  "typings": "./dist/index.d.ts",
-  "dependencies": {
-    "undici": "^6.20.1"
   }
 }

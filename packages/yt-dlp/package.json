@@ -1,14 +1,35 @@
 {
   "name": "@distube/yt-dlp",
   "version": "2.0.1",
+  "description": "A DisTube playable extractor plugin using yt-dlp.",
+  "keywords": [
+    "discord",
+    "distube",
+    "music",
+    "plugin"
+  ],
+  "homepage": "https://github.com/distubejs/plugins/tree/main/packages/yt-dlp#readme",
+  "bugs": {
+    "url": "https://github.com/distubejs/plugins/issues"
+  },
+  "license": "MIT",
   "author": "Skick (https://github.com/skick1234)",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/distubejs/plugins.git"
   },
+  "funding": "https://github.com/skick1234/DisTube?sponsor",
+  "directories": {
+    "lib": "src"
+  },
+  "files": [
+    "dist",
+    "script"
+  ],
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "typings": "./dist/index.d.ts",
   "exports": {
     ".": {
       "require": {
@@ -21,61 +42,26 @@
       }
     }
   },
+  "scripts": {
+    "build": "tsup",
+    "type": "tsrs --noEmit",
+    "postinstall": "is-ci || node script/download.js",
+    "prepack": "bun run build"
+  },
+  "dependencies": {
+    "dargs": "^7.0.0",
+    "undici": "^6.20.1"
+  },
   "devDependencies": {
     "@types/node": "^22.8.1",
     "discord.js": "^14.16.3",
     "distube": "^5.0.2",
-    "eslint": "^8.57.0",
-    "eslint-config-distube": "^1.7.1",
     "is-ci": "^3.0.1",
-    "prettier": "^3.3.3",
     "tslib": "^2.8.0",
     "tsup": "^8.3.5",
     "typescript": "^5.6.3"
   },
-  "bugs": {
-    "url": "https://github.com/distubejs/plugins/issues"
-  },
-  "description": "A DisTube playable extractor plugin using yt-dlp.",
-  "directories": {
-    "lib": "src"
-  },
-  "files": [
-    "dist",
-    "script"
-  ],
-  "funding": "https://github.com/skick1234/DisTube?sponsor",
-  "homepage": "https://github.com/distubejs/plugins/tree/main/packages/yt-dlp#readme",
-  "keywords": [
-    "distube",
-    "plugin",
-    "discord",
-    "music"
-  ],
-  "license": "MIT",
-  "nano-staged": {
-    "*.ts": [
-      "prettier --write",
-      "eslint"
-    ],
-    "*.{json,yml,yaml}": [
-      "prettier --write"
-    ]
-  },
   "peerDependencies": {
     "distube": "5"
-  },
-  "scripts": {
-    "format": "prettier --write \"**/*.{js,ts,json,yml,yaml,md}\"",
-    "lint": "eslint .",
-    "build": "tsup",
-    "type": "tsc --noEmit",
-    "postinstall": "is-ci || node script/download.js",
-    "prepack": "pnpm run build"
-  },
-  "typings": "./dist/index.d.ts",
-  "dependencies": {
-    "dargs": "^7.0.0",
-    "undici": "^6.20.1"
   }
 }

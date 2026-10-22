@@ -20,15 +20,16 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
 
-      # pnpm runs on Node.js, and npm publish signs provenance: bun publish rejects --provenance (oven-sh/bun#15601)
-      - name: Install Node.js
+      # npm: bun publish rejects --provenance (oven-sh/bun#15601)
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: "pnpm"
           registry-url: "https://registry.npmjs.org"
 
       - name: Resolve package from tag
@@ -42,7 +43,7 @@ jobs:
           fi
           directory="packages/${BASH_REMATCH[1]}"
           [[ -f "$directory/package.json" ]] || { echo "No package at $directory" >&2; exit 1; }
-          manifest="$(node -p 'const m = require(process.argv[1]); `${m.name}@${m.version}`' "./$directory/package.json")"
+          manifest="$(bun -e 'const m = await Bun.file(process.argv[1]).json(); console.log(`${m.name}@${m.version}`)' "$directory/package.json")"
           if [[ "$manifest" != "$TAG" ]]; then
             echo "Tag $TAG does not match $manifest" >&2
             exit 1
@@ -53,27 +54,41 @@ jobs:
       - name: Check the tag is on its release commit
         env:
           TAG: ${{ github.ref_name }}
+          NAME: ${{ steps.tag.outputs.name }}
           DIRECTORY: ${{ steps.tag.outputs.directory }}
         run: |
           fail() { echo "Tag $TAG is not on its release commit: $1" >&2; exit 1; }
           [[ "$(git log -1 --format=%s)" == "chore(Release): $TAG" ]] || fail "the subject is not 'chore(Release): $TAG'"
           [[ "$(git rev-list --parents -n 1 HEAD | wc -w)" == 2 ]] || fail "it does not have exactly one parent"
-          [[ "$(git diff --name-only HEAD^ HEAD)" == "$DIRECTORY/package.json" ]] ||
-            fail "it changes files other than $DIRECTORY/package.json"
+          changed="$(git diff --name-only HEAD^ HEAD | sort | paste -sd ' ')"
+          [[ "$changed" == "$DIRECTORY/package.json" || "$changed" == "bun.lock $DIRECTORY/package.json" ]] ||
+            fail "it changes files other than $DIRECTORY/package.json and bun.lock"
           git show "HEAD^:$DIRECTORY/package.json" > "$RUNNER_TEMP/before.json"
-          node -e '
-            const [before, after] = process.argv.slice(1).map((path) => require(path));
+          bun -e '
+            const [before, after] = await Promise.all(process.argv.slice(1).map((path) => Bun.file(path).json()));
             const rest = (manifest) => JSON.stringify({ ...manifest, version: undefined });
             process.exit(rest(before) === rest(after) && before.version !== after.version ? 0 : 1);
-          ' "$RUNNER_TEMP/before.json" "$PWD/$DIRECTORY/package.json" || fail "$DIRECTORY/package.json changes more than its version"
+          ' "$RUNNER_TEMP/before.json" "$DIRECTORY/package.json" || fail "$DIRECTORY/package.json changes more than its version"
+          if [[ "$changed" == bun.lock* ]]; then
+            git show HEAD^:bun.lock > "$RUNNER_TEMP/bun.lock"
+            bun -e '
+              const [lock, before, after, directory] = process.argv.slice(1);
+              const [from, to] = await Promise.all([before, after].map((path) => Bun.file(path).json()));
+              const entry = (version) => `"${directory}": {\n      "name": "${to.name}",\n      "version": "${version}",`;
+              const text = await Bun.file(lock).text();
+              const expected = text.replace(entry(from.version), entry(to.version));
+              process.exit(expected !== text && expected === (await Bun.file("bun.lock").text()) ? 0 : 1);
+            ' "$RUNNER_TEMP/bun.lock" "$RUNNER_TEMP/before.json" "$DIRECTORY/package.json" "$DIRECTORY" ||
+              fail "bun.lock changes more than the $NAME workspace version"
+          fi
 
       - name: Install dependencies
-        run: pnpm install --ignore-scripts --frozen-lockfile
+        run: bun install --frozen-lockfile --ignore-scripts
 
       - name: Verify
         env:
           NAME: ${{ steps.tag.outputs.name }}
-        run: pnpm --filter "$NAME" run lint && pnpm --filter "$NAME" run type && pnpm --filter "$NAME" run build
+        run: bun run check && bun run --filter "$NAME" type && bun run --filter "$NAME" build
 
       - name: Pack
         working-directory: ${{ steps.tag.outputs.directory }}

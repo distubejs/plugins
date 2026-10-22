@@ -26,7 +26,6 @@
     "sourceMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "downlevelIteration": true,
     "skipLibCheck": true
   },
   "exclude": ["node_modules"]

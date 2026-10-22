@@ -113,10 +113,8 @@ export class API {
         if (firstWarning1) {
           firstWarning1 = false;
           this._hasCredentials = false;
-          /* eslint-disable no-console */
           console.warn(e);
           console.warn("[SPOTIFY_PLUGIN_API] Cannot get token from your credentials. Try scraping token instead.");
-          /* eslint-enable no-console */
         }
       }
     }
@@ -128,12 +126,10 @@ export class API {
         this._tokenAvailable = false;
         if (firstWarning2) {
           firstWarning2 = false;
-          /* eslint-disable no-console */
           console.warn(
             "[SPOTIFY_PLUGIN_API] Cannot get token from scraping. " +
               "Cannot fetch more than 100 tracks from a playlist or album.",
           );
-          /* eslint-enable no-console */
         }
         return;
       }

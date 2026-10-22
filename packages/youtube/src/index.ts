@@ -50,7 +50,7 @@ const cookieHeader = (cookies: Cookie[] | undefined) =>
   cookies?.length ? cookies.map(c => `${c.name}=${c.value}`).join("; ") : undefined;
 
 const largest = (thumbnails: readonly Thumbnail[]) =>
-  [...thumbnails].sort((a, b) => (b.width ?? 0) - (a.width ?? 0))[0]?.url;
+  thumbnails.toSorted((a, b) => (b.width ?? 0) - (a.width ?? 0))[0]?.url;
 
 const summaryInfo = (plugin: YouTubePlugin, info: VideoSummary): SongInfo => ({
   plugin,
@@ -131,7 +131,7 @@ export class YouTubePlugin extends ExtractorPlugin {
     song.storyboards = newSong.storyboards;
     const format = info.formats
       .filter(f => f.url && f.hasAudio && (!newSong.isLive || f.isHLS))
-      .sort((a, b) => Number(b.audioBitrate) - Number(a.audioBitrate) || Number(a.bitrate) - Number(b.bitrate))[0];
+      .toSorted((a, b) => Number(b.audioBitrate) - Number(a.audioBitrate) || Number(a.bitrate) - Number(b.bitrate))[0];
     if (!format?.url) throw new DisTubeError("UNPLAYABLE_FORMATS");
     // YouTube answers media requests with 403 until an enforced preroll ends.
     await sleep(Math.max(0, info.playableAt - Date.now()));
@@ -139,7 +139,7 @@ export class YouTubePlugin extends ExtractorPlugin {
   }
 
   async getRelatedSongs(song: YouTubeSong): Promise<Song[]> {
-    const related = song.related ?? (await this.ytdl.getRelated(song.url!));
+    const related = song.related ?? (await this.ytdl.getRelated(song.id));
     return related.map(r => new YouTubeRelatedSong(this, r));
   }
 

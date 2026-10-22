@@ -49,7 +49,7 @@ export class SpotifyPlugin extends InfoExtractorPlugin {
       const parsedURL = this.api.parseUrl(url);
       if (!parsedURL.type || !this.api.isSupportedTypes(parsedURL.type)) return false;
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }

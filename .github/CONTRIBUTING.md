@@ -7,7 +7,7 @@ If you wish to contribute to DisTube, feel free to fork the repository and submi
 ## Setup
 
 1. Fork & clone the repository, make sure you are on the correct branch
-2. Run `pnpm ci`
+2. Run `bun install --ignore-scripts`
 3. Code your idea
-4. Run `pnpm run test` to make sure it works
+4. Run `bun run verify` to make sure it works
 5. [Submit a pull request](https://github.com/distubejs/plugins/compare) (Make sure you follow the [conventional commit format](https://www.conventionalcommits.org/en/v1.0.0/))

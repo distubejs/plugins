@@ -1,14 +1,36 @@
 {
   "name": "@distube/file",
   "version": "1.0.1",
+  "description": "A DisTube playable extractor plugin for supporting local files.",
+  "keywords": [
+    "direct",
+    "discord",
+    "distube",
+    "link",
+    "music",
+    "plugin"
+  ],
+  "homepage": "hhttps://github.com/distubejs/plugins/tree/main/packages/file#readme",
+  "bugs": {
+    "url": "https://github.com/distubejs/plugins/issues"
+  },
+  "license": "MIT",
   "author": "Skick (https://github.com/skick1234)",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/distubejs/plugins.git"
   },
+  "funding": "https://github.com/skick1234/DisTube?sponsor",
+  "directories": {
+    "lib": "src"
+  },
+  "files": [
+    "dist"
+  ],
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "typings": "./dist/index.d.ts",
   "exports": {
     ".": {
       "require": {
@@ -21,56 +43,20 @@
       }
     }
   },
+  "scripts": {
+    "build": "tsup",
+    "type": "tsrs --noEmit",
+    "prepack": "bun run build"
+  },
   "devDependencies": {
     "@types/node": "^22.8.1",
     "discord.js": "^14.16.3",
     "distube": "^5.0.2",
-    "eslint": "^8.57.0",
-    "eslint-config-distube": "^1.7.1",
-    "prettier": "^3.3.3",
     "tslib": "^2.8.0",
     "tsup": "^8.3.5",
     "typescript": "^5.6.3"
   },
-  "bugs": {
-    "url": "https://github.com/distubejs/plugins/issues"
-  },
-  "description": "A DisTube playable extractor plugin for supporting local files.",
-  "directories": {
-    "lib": "src"
-  },
-  "files": [
-    "dist"
-  ],
-  "funding": "https://github.com/skick1234/DisTube?sponsor",
-  "homepage": "hhttps://github.com/distubejs/plugins/tree/main/packages/file#readme",
-  "keywords": [
-    "distube",
-    "plugin",
-    "direct",
-    "link",
-    "discord",
-    "music"
-  ],
-  "license": "MIT",
-  "nano-staged": {
-    "*.ts": [
-      "prettier --write",
-      "eslint"
-    ],
-    "*.{json,yml,yaml}": [
-      "prettier --write"
-    ]
-  },
   "peerDependencies": {
     "distube": "5"
-  },
-  "scripts": {
-    "format": "prettier --write \"**/*.{js,ts,json,yml,yaml,md}\"",
-    "lint": "eslint .",
-    "build": "tsup",
-    "type": "tsc --noEmit",
-    "prepack": "pnpm run build"
-  },
-  "typings": "./dist/index.d.ts"
+  }
 }

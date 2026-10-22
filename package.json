@@ -1,25 +1,27 @@
 {
   "name": "@distube/plugins",
-  "description": "Official extractor plugins for DisTube",
   "private": true,
+  "description": "Official extractor plugins for DisTube",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "build": "turbo build",
-    "format": "turbo format",
-    "lint": "turbo lint",
-    "type": "turbo type",
-    "test": "turbo test",
-    "update": "pnpm update --recursive --latest \"!eslint\" \"!dargs\""
+    "build": "bun run --filter '*' build",
+    "format": "oxfmt",
+    "check": "oxlint --deny-warnings && oxfmt --check",
+    "check:write": "oxlint --fix && oxfmt",
+    "type": "bun run --filter '*' type",
+    "verify": "bun run check && bun run type && bun run build"
   },
   "devDependencies": {
     "@types/node": "^22.8.1",
-    "eslint": "8.57.0",
-    "eslint-config-distube": "^1.7.1",
-    "prettier": "^3.3.3",
-    "tsup": "^8.3.5",
-    "turbo": "^2.2.3"
+    "oxfmt": "^0.73.0",
+    "oxlint": "^1.88.0",
+    "tsrs": "0.18.0-ts7.1.0-dev.20260929",
+    "tsup": "^8.3.5"
   },
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "pnpm@9.4.0"
+  "packageManager": "bun@1.4.3"
 }

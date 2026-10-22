@@ -12,7 +12,6 @@ const makeRequest = async (url: string): Promise<Dispatcher.ResponseData> => {
     if (!response.headers.location || Array.isArray(response.headers.location)) {
       throw new Error(`Cannot redirect to '${url}'`);
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for await (const _chunk of response.body) {
       // force consumption of body
     }
